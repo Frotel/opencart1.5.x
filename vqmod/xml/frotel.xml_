@@ -1,0 +1,370 @@
+<modification>
+	<id><![CDATA[Frotel WebService for OpenCart v1.5.x]]></id>
+	<version><![CDATA[1.0.0]]></version>
+	<author><![CDATA[ReZa ZaRe (Rz.ZaRe@Gmail.com)]]></author>
+	<file name="catalog/controller/checkout/checkout.php">
+		<operation>
+			<search position="before"><![CDATA[$products = $this->cart->getProducts();]]></search>
+            <add><![CDATA[
+                if (!isset($this->session->data['province_id'])) {
+                    $this->response->redirect($this->url->link('payment/frotel/city','','SSL'));
+                }
+            ]]></add>
+		</operation>
+	</file>
+    <file error="skip" name="catalog/controller/quickcheckout/checkout.php">
+        <operation>
+        <search position="before"><![CDATA[$products = $this->cart->getProducts();]]></search>
+        <add><![CDATA[
+                if (!isset($this->session->data['province_id'])) {
+                    $this->response->redirect($this->url->link('payment/frotel/city','','SSL'));
+                }
+            ]]></add>
+        </operation>
+    </file>
+    <file name="catalog/model/checkout/order.php">
+		<operation>
+			<search position="replace"><![CDATA[$order_query = $this->db->query("SELECT *, (SELECT os.name FROM `" . DB_PREFIX . "order_status` os WHERE os.order_status_id = o.order_status_id AND os.language_id = o.language_id) AS order_status FROM `" . DB_PREFIX . "order` o WHERE o.order_id = '" . (int)$order_id . "'");]]></search>
+			<add><![CDATA[$order_query = $this->db->query("SELECT *, (SELECT os.name FROM `" . DB_PREFIX . "order_status` os WHERE os.order_status_id = o.order_status_id AND os.language_id = o.language_id) AS order_status,f.frotel_factor,f.last_change_status,f.province,f.city FROM `" . DB_PREFIX . "order` o LEFT JOIN `".DB_PREFIX."frotel_factor` AS f ON o.order_id=f.oc_order_id WHERE o.order_id = '" . (int)$order_id . "'");]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA['order_id'                => $order_query->row['order_id'],]]></search>
+			<add><![CDATA[
+			'frotel_factor'                  => $order_query->row['frotel_factor'],
+            'last_change_status'			 => $order_query->row['last_change_status'],
+            'province'			             => $order_query->row['province'],
+            'city'			                 => $order_query->row['city'],
+						]]></add>
+		</operation>
+	</file>
+	<file name="catalog/controller/checkout/success.php">
+		<operation>
+			<search position="after"><![CDATA[$this->data['heading_title'] = $this->language->get('heading_title');]]></search>
+			<add><![CDATA[
+			$message = '';
+			if(isset($this->session->data['pay_verify'])) {
+                $message .= '<div class="success">'.$this->session->data['pay_verify'].'</div><br />';
+            }
+            if(isset($this->session->data['pay_error'])) {
+                $message .= '<div class="warning">'.$this->session->data['pay_error'].'</div><br />';
+            }
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['button_continue'] = $this->language->get('button_continue');]]></search>
+			<add><![CDATA[
+			$this->data['text_message'] = $message . $this->data['text_message'];
+						]]></add>
+		</operation>
+	</file>
+	<file name="admin/controller/sale/order.php">
+		<operation>
+			<search position="after"><![CDATA[protected function getList() {]]></search>
+			<add><![CDATA[
+
+		if (isset($this->request->get['filter_frotel_factor'])) {
+			$filter_frotel_factor = $this->request->get['filter_frotel_factor'];
+		} else {
+			$filter_frotel_factor = null;
+		}
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['invoice'] = $this->url->link('sale/order/invoice', 'token=' . $this->session->data['token'], 'SSL');]]></search>
+			<add><![CDATA[
+
+
+		if (isset($this->request->get['filter_frotel_factor'])) {
+			$url .= '&filter_frotel_factor=' . $this->request->get['filter_frotel_factor'];
+		}
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[	'filter_date_added'      => $filter_date_added,]]></search>
+			<add><![CDATA[
+				'filter_frotel_factor'      => $filter_frotel_factor,
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA['date_added'    => date($this->language->get('date_format_short'), strtotime($result['date_added'])),]]></search>
+			<add><![CDATA[
+				'frotel_factor'    => $result['frotel_factor'],
+				'payment_code'    => $result['payment_code'],
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['text_missing'] = $this->language->get('text_missing');]]></search>
+			<add><![CDATA[
+				$this->data['text_register_in_frotel'] = $this->language->get('register_in_frotel');
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['column_date_added'] = $this->language->get('column_date_added');]]></search>
+			<add><![CDATA[
+				$this->data['column_frotel_factor'] = $this->language->get('column_frotel_factor');
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[if ($order == 'ASC') {]]></search>
+			<add><![CDATA[
+		if (isset($this->request->get['filter_frotel_factor'])) {
+			$url .= '&filter_frotel_factor=' . $this->request->get['filter_frotel_factor'];
+		}
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['sort_date_added'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'] . '&sort=o.date_added' . $url, 'SSL');]]></search>
+			<add><![CDATA[
+				$this->data['sort_frotel_factor'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'] . '&sort=f.frotel_factor' . $url, 'SSL');
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['filter_date_added'] = $filter_date_added;]]></search>
+			<add><![CDATA[
+				$this->data['filter_frotel_factor'] = $filter_frotel_factor;
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$this->data['text_amazon_order_id'] = $this->language->get('text_amazon_order_id');]]></search>
+			<add><![CDATA[
+				$this->data['text_frotel_factor'] = $this->language->get('column_frotel_factor');
+				$this->data['text_frotel_desc'] = $this->language->get('text_frotel_desc');
+				$this->data['text_register_in_frotel'] = $this->language->get('register_in_frotel');
+						]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[$this->data['amazon_order_id'] = $order_info['amazon_order_id'];]]></search>
+			<add><![CDATA[
+				$this->data['frotel_factor'] = $order_info['frotel_factor'];
+				$this->data['frotel_desc'] = $order_info['frotel_desc'];
+				$this->data['payment_code'] = $order_info['payment_code'];
+						]]></add>
+		</operation>
+	</file>
+    <file name="admin/view/template/sale/order_info.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if (!empty($amazon_order_id)) { ?>]]></search>
+            <add><![CDATA[
+<?php if ($payment_code == 'frotel') { ?>
+          <tr>
+            <td><?php echo $text_frotel_factor; ?>: </td>
+            <td><strong><?php
+                if($frotel_factor){
+                    echo $frotel_factor;
+                }else{
+                    echo '<a class="register_in_frotel button" data-id="'.$order_id.'">'.$text_register_in_frotel.'</a>';
+                }
+                ?></strong></td>
+          </tr>
+          <?php if ($frotel_desc) { ?>
+          <tr>
+            <td><?php echo $text_frotel_desc; ?>: </td>
+            <td><?php echo $frotel_desc; ?></td>
+          </tr>
+          <?php
+           }
+
+       }
+   ?>
+						]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA[<div class="box">]]></search>
+            <add><![CDATA[
+                        <div class="frotel_result"></div>
+						]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA[$('#invoice-generate').live('click', function() {]]></search>
+            <add><![CDATA[
+                        $(document).on('click','.register_in_frotel',function(e){
+                            e.preventDefault();
+                            var t=$(this);
+                            if(t.attr('disabled'))  return false;
+                            t.attr('disabled','disabled');
+                            t.append(' <img src="/admin/view/image/loading.gif" />');
+                            var h=$('.frotel_result');
+                            $.ajax({
+                                url:'<?php echo $this->url->link('payment/frotel/register','ajax=1','SSL').'&token='.$this->session->data['token'] ?>',
+                                data:{id:t.attr('data-id')},
+                                dataType:'json',
+                                success:function(d){
+                                    if(d.error==0){
+                                        t.parent().html(d.factor);
+                                    } else {
+                                        h.html('<div class="warning">'+d.message+'<img src="/catalog/view/theme/default/image/close.png" style="float: left;padding-top: 4px;padding-left: 4px;cursor: pointer;" alt="" class="close"></div>');
+                                    }
+                                },
+                                complete:function(){
+                                    t.removeAttr('disabled');
+                                }
+                            });
+                        });
+                        $(document).on('click','.close',function(e){
+                            $(this).parent().fadeOut(function(){
+                                $(this).remove();
+                            });
+                        });
+						]]></add>
+        </operation>
+    </file>
+	<file name="admin/model/sale/order.php">
+		<operation>
+			<search position="replace"><![CDATA[$sql = "SELECT o.order_id, CONCAT(o.firstname, ' ', o.lastname) AS customer, (SELECT os.name FROM " . DB_PREFIX . "order_status os WHERE os.order_status_id = o.order_status_id AND os.language_id = '" . (int)$this->config->get('config_language_id') . "') AS status, o.total, o.currency_code, o.currency_value, o.date_added, o.date_modified FROM `" . DB_PREFIX . "order` o";]]></search>
+			<add><![CDATA[
+$sql = "SELECT o.order_id, CONCAT(o.firstname, ' ', o.lastname) AS customer, (SELECT os.name FROM " . DB_PREFIX . "order_status os WHERE os.order_status_id = o.order_status_id AND os.language_id = '" . (int)$this->config->get('config_language_id') . "') AS status, o.total, o.currency_code, o.currency_value, o.date_added, o.date_modified,f.frotel_factor,f.last_change_status,f.province,f.city,o.payment_code FROM `" . DB_PREFIX . "order` o LEFT JOIN `".DB_PREFIX."frotel_factor` AS f ON o.order_id = f.oc_order_id";
+
+						]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[$order_query = $this->db->query("SELECT *, (SELECT CONCAT(c.firstname, ' ', c.lastname) FROM " . DB_PREFIX . "customer c WHERE c.customer_id = o.customer_id) AS customer FROM `" . DB_PREFIX . "order` o WHERE o.order_id = '" . (int)$order_id . "'");]]></search>
+			<add><![CDATA[
+$order_query = $this->db->query("SELECT *, (SELECT CONCAT(c.firstname, ' ', c.lastname) FROM " . DB_PREFIX . "customer c WHERE c.customer_id = o.customer_id) AS customer,f.frotel_factor,f.last_change_status,f.province,f.city,f.desc AS frotel_desc FROM `" . DB_PREFIX . "order` o  LEFT JOIN `".DB_PREFIX."frotel_factor` AS f ON o.order_id = f.oc_order_id WHERE o.order_id = '" . (int)$order_id . "'");
+						]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[$sql = "SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order`";]]></search>
+			<add><![CDATA[
+$sql = "SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` LEFT JOIN `".DB_PREFIX."frotel_factor` AS f ON `".DB_PREFIX."order`.order_id = f.oc_order_id";
+
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA['order_id'                => $order_query->row['order_id'],]]></search>
+			<add><![CDATA[
+'frotel_factor'               => $order_query->row['frotel_factor'],
+'frotel_desc'                 => $order_query->row['frotel_desc'],
+'last_change_status'          => $order_query->row['last_change_status'],
+'province'                    => $order_query->row['province'],
+'city'                        => $order_query->row['city'],
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[if (!empty($data['filter_order_id'])) {]]></search>
+			<add><![CDATA[
+
+		if (isset($data['filter_frotel_factor']) && !is_null($data['filter_frotel_factor'])) {
+			$sql .= " AND f.frotel_factor LIKE '%" . $data['filter_frotel_factor'] . "%'";
+		}
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA['o.date_added',]]></search>
+			<add><![CDATA[
+
+			'f.frotel_factor',
+						]]></add>
+		</operation>
+	</file>
+	<file name="admin/view/template/sale/order_list.tpl">
+		<operation>
+			<search position="before"><![CDATA[<td class="left"><?php if ($sort == 'customer') { ?>]]></search>
+			<add><![CDATA[
+
+              <td class="center"><?php if ($sort == 'f.frotel_factor') { ?>
+                <a href="<?php echo $sort_frotel_factor; ?>" class="<?php echo strtolower($order); ?>"><?php echo $column_frotel_factor; ?></a>
+                <?php } else { ?>
+                <a href="<?php echo $sort_frotel_factor; ?>"><?php echo $column_frotel_factor; ?></a>
+                <?php } ?></td>
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[<td><input type="text" name="filter_customer" value="<?php echo $filter_customer; ?>" /></td>]]></search>
+			<add><![CDATA[
+
+              <td><input type="text" name="filter_frotel_factor" value="<?php echo $filter_frotel_factor; ?>" /></td>
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[<td class="left"><?php echo $order['customer']; ?></td>]]></search>
+			<add><![CDATA[
+
+              <td class="center">
+              <?php
+              if ($order['payment_code'] == 'frotel') {
+                  if($order['frotel_factor']){
+                    echo $order['frotel_factor'];
+                  }else{
+                    echo '<a class="register_in_frotel button" data-id="'.$order['order_id'].'">'.$text_register_in_frotel.'</a>';
+                  }
+              }
+                ?>
+                </td>
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[var filter_customer = $('input[name=\'filter_customer\']').attr('value');]]></search>
+			<add><![CDATA[
+
+              var filter_frotel_factor = $('input[name=\'filter_frotel_factor\']').attr('value');
+
+	if (filter_frotel_factor) {
+		url += '&filter_frotel_factor=' + encodeURIComponent(filter_frotel_factor);
+	}
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[$('input[name=\'filter_customer\']').catcomplete({]]></search>
+			<add><![CDATA[
+                        $(document).on('click','.register_in_frotel',function(e){
+                            e.preventDefault();
+                            var t=$(this);
+                            if(t.attr('disabled'))  return false;
+                            t.append(' <img src="/admin/view/image/loading.gif" />');
+                            t.attr('disabled','disabled');
+                            var h=$('.frotel_result');
+                            $.ajax({
+                                url:'<?php echo $this->url->link('payment/frotel/register','ajax=1','SSL').'&token='.$this->session->data['token'] ?>',
+                                data:{id:t.attr('data-id')},
+                                dataType:'json',
+                                success:function(d){
+                                    if(d.error==0){
+                                        t.parent().html(d.factor);
+                                    } else {
+                                        $('.factor_'+t.attr('data-id')).remove();
+                                        h.html(h.html()+'<div class="warning factor_'+t.attr('data-id')+'" ><?php echo $column_order_id ?> <strong>'+t.attr('data-id')+'</strong> : '+d.message+'<img src="/catalog/view/theme/default/image/close.png" style="float: left;padding-top: 4px;padding-left: 4px;cursor: pointer;" alt="" class="close"></div>');
+                                    }
+                                },
+                                complete:function(){
+                                    t.removeAttr('disabled');
+                                    t.children('img').remove();
+                                }
+                            });
+                        });
+                        $(document).on('click','.close',function(e){
+                            $(this).parent().fadeOut(function(){
+                                $(this).remove();
+                            });
+                        });
+						]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[<div class="box">]]></search>
+			<add><![CDATA[
+                        <div class="frotel_result"></div>
+						]]></add>
+		</operation>
+	</file>
+	<file name="admin/language/persian/sale/order.php">
+		<operation>
+			<search position="before"><![CDATA[$_['column_date_added']                       = 'تاریخ افزودن';]]></search>
+			<add><![CDATA[
+
+              $_['column_frotel_factor']                       = 'بارکد فروتل';
+              $_['text_frotel_desc']    	           	       = 'توضیحات ثبت سفارش';
+              $_['register_in_frotel']                         = 'ثبت در فروتل';
+						]]></add>
+		</operation>
+	</file>
+	<file name="admin/language/english/sale/order.php">
+		<operation>
+			<search position="before"><![CDATA[$_['column_date_added']                       = 'Date Added';]]></search>
+			<add><![CDATA[
+
+              $_['column_frotel_factor']                       = 'Frotel Factor';
+              $_['text_frotel_desc']            	           = 'Register Order Desc.';
+              $_['register_in_frotel']                         = 'Register in Frotel';
+						]]></add>
+		</operation>
+	</file>
+</modification>
