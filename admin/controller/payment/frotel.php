@@ -49,9 +49,6 @@ class ControllerPaymentFrotel extends Controller
         $this->data['entry_default_cod_express'] = $this->language->get('entry_default_cod_express');
         $this->data['entry_default_cod_registered'] = $this->language->get('entry_default_cod_registered');
         $this->data['entry_default_weight'] = $this->language->get('entry_default_weight');
-        $this->data['entry_default_weight'] = $this->language->get('entry_default_weight');
-        $this->data['entry_default_weight'] = $this->language->get('entry_default_weight');
-        $this->data['entry_default_weight'] = $this->language->get('entry_default_weight');
         $this->data['entry_pro_code'] = $this->language->get('entry_pro_code');
         $this->data['entry_pro_code_desc'] = $this->language->get('entry_pro_code_desc');
         $this->data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
