@@ -164,6 +164,7 @@ class ControllerPaymentFrotel extends Controller
         $this->data['choose_bank'] = $this->language->get('choose_bank');
         $this->data['banks'] = $this->session->data['frotel_data']['factor']['banks'];
         $this->data['url'] = $this->url->link('payment/frotel/gateway','','SSL');
+        $this->data['pay_error'] = isset($this->session->data['pay_error']) ? $this->session->data['pay_error']:null;
 
         if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/frotel_pay.tpl')) {
             $this->template = $this->config->get('config_template') . '/template/payment/frotel_pay.tpl';
@@ -269,6 +270,7 @@ class ControllerPaymentFrotel extends Controller
                 ');
                 $this->session->data['frotel_data']['pay'] = 1;
                 $this->session->data['pay_verify'] = sprintf($this->language->get('verify_success'),$result['code']);
+                $this->response->redirect($this->url->link('checkout/success','','SSL'));
             } else {
                 $this->session->data['pay_error'] = $result['message'];
             }
@@ -279,8 +281,7 @@ class ControllerPaymentFrotel extends Controller
         } catch (FrotelResponseException $e) {
             $this->session->data['pay_error'] = $this->language->get('error_webservice');
         }
-
-        $this->response->redirect($this->url->link('checkout/success','','SSL'));
+        $this->response->redirect($this->url->link('payment/frotel/pay','','SSL'));
     }
 
     /**

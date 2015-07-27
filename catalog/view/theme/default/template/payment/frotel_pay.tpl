@@ -24,7 +24,11 @@
     <?php echo $content_top; ?>
 
     <h1><?php echo $text_title; ?></h1>
-
+<?php
+ if ($pay_error) {
+    echo '<div class="warning">'.$pay_error.'</div>';
+ }
+?>
         لطفا برای پرداخت هزینه سفارش خود یکی از درگاه های زیر را انتخاب کنید : <br />
         <div class="banks">
             <?php
