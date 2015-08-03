@@ -270,6 +270,7 @@ class ControllerPaymentFrotel extends Controller
                 ');
                 $this->session->data['frotel_data']['pay'] = 1;
                 $this->session->data['pay_verify'] = sprintf($this->language->get('verify_success'),$result['code']);
+                $this->session->data['pay_error'] = null;
                 $this->response->redirect($this->url->link('checkout/success','','SSL'));
             } else {
                 $this->session->data['pay_error'] = $result['message'];
