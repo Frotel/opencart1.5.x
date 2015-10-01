@@ -90,6 +90,7 @@ class ControllerPaymentFrotel extends Controller
                     $product_name = '(' . implode(',', $product_name) . ')';
 
                 $weight = ceil($this->weight->convert($item['weight'], $this->config->get('config_weight_class_id'), 2));  # convert to gram
+                $weight = $weight / ceil($item['quantity']);
                 if ($weight<=0)
                     $weight = $default_weight;
 
