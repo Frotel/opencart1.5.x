@@ -53,6 +53,9 @@ class ControllerPaymentFrotel extends Controller
         $this->data['entry_pro_code_desc'] = $this->language->get('entry_pro_code_desc');
         $this->data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
 
+        $this->data['entry_default_payment'] = $this->language->get('entry_default_payment');
+        $this->data['entry_default_delivery'] = $this->language->get('entry_default_delivery');
+
         /* text and button and form */
         $this->data['button_save'] = $this->language->get('button_save');
         $this->data['button_cancel'] = $this->language->get('button_cancel');
@@ -162,6 +165,18 @@ class ControllerPaymentFrotel extends Controller
             $this->data['frotel_sort'] = $this->request->post['frotel_sort'];
         } else {
             $this->data['frotel_sort'] = $this->config->get('frotel_sort');
+        }
+
+        if (isset($this->request->post['frotel_default_payment'])) {
+            $this->data['frotel_default_payment'] = $this->request->post['frotel_default_payment'];
+        } else {
+            $this->data['frotel_default_payment'] = $this->config->get('frotel_default_payment');
+        }
+
+        if (isset($this->request->post['frotel_default_delivery'])) {
+            $this->data['frotel_default_delivery'] = $this->request->post['frotel_default_delivery'];
+        } else {
+            $this->data['frotel_default_delivery'] = $this->config->get('frotel_default_delivery');
         }
 
         if (isset($this->request->post['frotel_default_online_express'])) {

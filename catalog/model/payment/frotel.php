@@ -10,13 +10,17 @@ class ModelPaymentFrotel extends Model
     public function getMethod($address,$total)
     {
         if(!isset($this->session->data['shipping_method'])) {
-            return false;
+            if ($this->config->get('frotel_default_payment') == null)
+                return false;
+
+            $shipping_method = $this->config->get('frotel_default_payment') . '_' . $this->config->get('frotel_default_delivery');
+        } else {
+            $shipping_method = explode('.',$this->session->data['shipping_method']['code']);
+            if (!isset($shipping_method[1]))
+                $shipping_method[1] = 'registered_online';
         }
 
         $this->load->language('payment/frotel');
-        $shipping_method = explode('.',$this->session->data['shipping_method']['code']);
-        if (!isset($shipping_method[1]))
-            $shipping_method[1] = 'registered_online';
 
         $shipping_method = explode('_',$shipping_method[1]);
         $delivery_type = $shipping_method[0];

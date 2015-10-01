@@ -4,12 +4,12 @@
 	<author><![CDATA[ReZa ZaRe (Rz.ZaRe@Gmail.com)]]></author>
 	<file name="catalog/controller/checkout/checkout.php">
 		<operation>
-			<search position="before"><![CDATA[$products = $this->cart->getProducts();]]></search>
-            <add><![CDATA[
-                if (!isset($this->session->data['province_id'])) {
-                    $this->response->redirect($this->url->link('payment/frotel/city','','SSL'));
-                }
-            ]]></add>
+			<search position="after"><![CDATA[public function index() {]]></search>
+	            	<add><![CDATA[
+	               		if (!isset($this->session->data['province_id'])) {
+	                		$this->response->redirect($this->url->link('payment/frotel/city','','SSL'));
+	                	}
+	        	]]></add>
 		</operation>
 	</file>
     <file error="skip" name="catalog/controller/quickcheckout/checkout.php">

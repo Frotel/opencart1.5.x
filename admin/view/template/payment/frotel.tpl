@@ -51,6 +51,24 @@
                         </td>
                     </tr>
                     <tr>
+                        <td valign="top"><label for="default_payment"><?php echo $entry_default_payment; ?></label></td>
+                        <td>
+                            <select name="frotel_default_payment" id="default_payment">
+                                <option value="online"<?php echo $frotel_default_payment=='online'?' selected=selected':'' ?>><?php echo $entry_online; ?></option>
+                                <option value="cod"<?php echo $frotel_default_payment=='cod'?' selected=selected':'' ?>><?php echo $entry_cod; ?></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top"><label for="default_delivery"><?php echo $entry_default_delivery; ?></label></td>
+                        <td>
+                            <select name="frotel_default_delivery" id="default_delivery">
+                                <option value="express"<?php echo $frotel_default_delivery=='express'?' selected=selected':'' ?>><?php echo $entry_express; ?></option>
+                                <option value="registered"<?php echo $frotel_default_delivery=='registered'?' selected=selected':'' ?>><?php echo $entry_registered; ?></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
                         <td><label for="frotel_default_online_express"><?php echo $entry_default_online_express; ?></label></td>
                         <td>
                             <input type="text" name="frotel_default_online_express" id="frotel_default_online_express" value="<?php echo $frotel_default_online_express; ?>" />
