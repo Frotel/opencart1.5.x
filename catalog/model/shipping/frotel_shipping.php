@@ -13,6 +13,10 @@ class ModelShippingFrotelShipping extends Model
         $this->load->library('frotel/helper');
 
         $totalWeight = $this->weight->convert($this->cart->getWeight(),$this->config->get('config_weight_class_id'),2);
+        if ($totalWeight<=0) {
+            $count_product = $this->cart->countProducts();
+            $totalWeight = ceil($this->config->get('frotel_default_weight') * $count_product);
+        }
         $totalPrice = $this->currency->convert($this->cart->getTotal(),$this->config->get('config_currency'),'RLS');
 
         $online = $this->config->get('frotel_online');
